@@ -42,13 +42,23 @@
         .border-red-accent { border-color: var(--accent-red); }
 
         /* Card Hover Effects */
-        .project-card, .skill-card, .timeline-card {
+        .project-card, .skill-card, .timeline-card, .certificate-card {
             transition: all 0.3s ease;
         }
-        .project-card:hover {
+        .project-card:hover, .certificate-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 10px 30px rgba(225, 29, 72, 0.15);
             border-color: var(--accent-red);
+        }
+
+        #cert-lightbox {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #cert-lightbox.open {
+            opacity: 1;
+            visibility: visible;
         }
 
         /* Image Overlay */
@@ -81,6 +91,41 @@
             0%, 100% { opacity: 0.2; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.1); }
         }
+
+        /* Hamburger menu */
+        .menu-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .menu-panel {
+            transform: translateX(-100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .menu-overlay.open .menu-panel {
+            transform: translateX(0);
+        }
+        .hamburger-line {
+            transition: transform 0.3s ease, opacity 0.3s ease, top 0.3s ease;
+        }
+        .menu-btn.open .hamburger-line:nth-child(1) {
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+        }
+        .menu-btn.open .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-btn.open .hamburger-line:nth-child(3) {
+            top: 50%;
+            transform: translateY(-50%) rotate(-45deg);
+        }
+        body.menu-open {
+            overflow: hidden;
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-rose-600 selection:text-white">
@@ -91,20 +136,69 @@
 
     <!-- Navigation -->
     <nav class="fixed w-full z-50 bg-[#0b1121]/90 backdrop-blur-md border-b border-gray-800">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#" class="text-2xl font-bold tracking-wider">M.Y.<span class="text-red-accent">Bhuiyan</span></a>
-            <div class="hidden md:flex gap-8 font-medium">
-                <a href="#about" class="hover:text-red-accent transition-colors">About</a>
-                <a href="#skills" class="hover:text-red-accent transition-colors">Skills</a>
-                <a href="#projects" class="hover:text-red-accent transition-colors">Projects</a>
-                <a href="#experience" class="hover:text-red-accent transition-colors">Experience</a>
-            </div>
-            <a href="#contact" class="px-5 py-2 bg-red-accent hover:bg-rose-700 text-white rounded-full font-medium transition-colors shadow-lg shadow-rose-600/30">Hire Me</a>
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
+            <button type="button" id="menu-toggle" class="menu-btn relative w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-lg border border-gray-700 hover:border-red-accent/50 hover:bg-card transition-colors" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+                <span class="sr-only">Menu</span>
+                <span class="hamburger-line absolute left-3 right-3 h-0.5 bg-white rounded-full top-[14px]"></span>
+                <span class="hamburger-line absolute left-3 right-3 h-0.5 bg-white rounded-full top-1/2 -translate-y-1/2"></span>
+                <span class="hamburger-line absolute left-3 right-3 h-0.5 bg-white rounded-full bottom-[14px]"></span>
+            </button>
+            <a href="#home" class="text-2xl font-bold tracking-wider menu-link">M.Y.<span class="text-red-accent">Bhuiyan</span></a>
         </div>
     </nav>
 
+    <!-- Hamburger menu panel -->
+    <div id="mobile-menu" class="menu-overlay fixed inset-0 z-[60]" aria-hidden="true">
+        <button type="button" id="menu-backdrop" class="absolute inset-0 bg-[#0b1121]/80 backdrop-blur-sm" aria-label="Close menu"></button>
+        <aside class="menu-panel absolute top-0 left-0 h-full w-full max-w-sm bg-card border-r border-gray-800 shadow-2xl flex flex-col">
+            <div class="flex items-center justify-between px-6 py-5 border-b border-gray-800">
+                <span class="text-lg font-bold tracking-wide">Menu</span>
+                <button type="button" id="menu-close" class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 hover:border-red-accent/50 hover:text-red-accent transition-colors" aria-label="Close menu">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto px-4 py-6">
+                <p class="px-3 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Navigate</p>
+                <ul class="space-y-1 font-medium">
+                    <li><a href="#home" class="menu-link flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors"><i class="fa-solid fa-house w-5 text-red-accent"></i> Home</a></li>
+                    <li><a href="#about" class="menu-link flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors"><i class="fa-solid fa-user w-5 text-red-accent"></i> About Me</a></li>
+                    <li><a href="#skills" class="menu-link flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors"><i class="fa-solid fa-code w-5 text-red-accent"></i> Skills</a></li>
+                    <li><a href="#projects" class="menu-link flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors"><i class="fa-solid fa-folder-open w-5 text-red-accent"></i> Projects</a></li>
+                    <li><a href="#experience" class="menu-link flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors"><i class="fa-solid fa-briefcase w-5 text-red-accent"></i> Experience</a></li>
+                    <li><a href="#certificates" class="menu-link flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors"><i class="fa-solid fa-award w-5 text-red-accent"></i> Certificates</a></li>
+                    <li>
+                        <button type="button" id="menu-resume-open" class="w-full menu-link flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors text-left">
+                            <i class="fa-solid fa-file-lines w-5 text-red-accent"></i> Resume / CV
+                        </button>
+                    </li>
+                    <li><a href="#contact" class="menu-link flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors"><i class="fa-solid fa-envelope w-5 text-red-accent"></i> Contact</a></li>
+                </ul>
+
+                <p class="px-3 mt-8 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Social</p>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="https://github.com/BhuiyanMdYaqub03" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors">
+                            <i class="fa-brands fa-github w-5 text-red-accent"></i> GitHub
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#contact-email" class="menu-link flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-800 hover:text-red-accent transition-colors">
+                            <i class="fa-solid fa-envelope w-5 text-red-accent"></i> Email
+                        </a>
+                    </li>
+                </ul>
+
+            </nav>
+
+            <div class="px-6 py-5 border-t border-gray-800 text-center text-sm text-gray-500">
+                <p>© 2026 Md Yaqub Bhuiyan</p>
+            </div>
+        </aside>
+    </div>
+
     <!-- Hero Section -->
-    <section class="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden px-6">
+    <section id="home" class="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden px-6">
         <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <div class="order-2 md:order-1 reveal">
                 <p class="text-red-accent font-semibold tracking-wider mb-2 uppercase"><i class="fa-solid fa-terminal mr-2"></i> Future AI Engineer</p>
@@ -126,7 +220,7 @@
             <div class="order-1 md:order-2 flex justify-center reveal">
                 <div class="relative w-72 h-72 md:w-96 md:h-96 rounded-full border-2 border-red-accent/30 p-2">
                     <div class="w-full h-full rounded-full overflow-hidden relative shadow-[0_0_50px_rgba(225,29,72,0.2)]">
-                        <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=600&q=80" alt="Tech Abstract" class="w-full h-full object-cover">
+                        <img src="assets/profile.png" alt="Md Yaqub Bhuiyan" class="w-full h-full object-cover object-top">
                         <div class="absolute inset-0 bg-red-accent/10 mix-blend-overlay"></div>
                     </div>
                     <!-- Floating Badge -->
@@ -243,18 +337,19 @@
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Project 1 -->
                 <div class="bg-card rounded-2xl border border-gray-800 overflow-hidden project-card group reveal">
-                    <div class="relative h-48 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" alt="Project Mockup" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <a href="https://murad-first-todo-app.vercel.app/" target="_blank" rel="noopener noreferrer" class="block relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=600&q=80" alt="Taskflow Todo App preview" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute inset-0 bg-dark-blue/50 group-hover:bg-transparent transition-colors"></div>
-                    </div>
+                        <span class="absolute top-3 right-3 text-xs font-bold px-2 py-1 bg-red-accent text-white rounded">First App</span>
+                    </a>
                     <div class="p-6">
                         <div class="flex gap-2 mb-4">
                             <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded">React</span>
-                            <span class="text-xs font-bold px-2 py-1 bg-gray-800 text-gray-300 rounded">Tailwind</span>
+                            <span class="text-xs font-bold px-2 py-1 bg-gray-800 text-gray-300 rounded">Vercel</span>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">Modern E-Commerce UI</h3>
-                        <p class="text-gray-400 text-sm mb-4">A fully responsive front-end design for an e-commerce platform focusing on smooth user experience.</p>
-                        <a href="#" class="text-red-accent font-semibold text-sm hover:underline"><i class="fa-brands fa-github mr-1"></i> Source Code</a>
+                        <h3 class="text-xl font-bold mb-2">Taskflow — Todo</h3>
+                        <p class="text-gray-400 text-sm mb-4">My first built app — a clean task manager to add, complete, and organize daily to-dos with a smooth, responsive UI.</p>
+                        <a href="https://murad-first-todo-app.vercel.app/" target="_blank" rel="noopener noreferrer" class="text-red-accent font-semibold text-sm hover:underline"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Live Demo</a>
                     </div>
                 </div>
 
@@ -370,6 +465,194 @@
         </div>
     </section>
 
+    <!-- Certificates Section -->
+    <section id="certificates" class="py-20 px-6 bg-[#0e1526]">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">Certificates & <span class="text-red-accent">Achievements</span></h2>
+                <div class="w-20 h-1 bg-red-accent mx-auto rounded-full"></div>
+                <p class="text-gray-400 mt-6 max-w-2xl mx-auto">Professional training, language proficiency, volunteering, and event participation.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" data-cert="assets/certificates/duolingo-english-test.png" data-title="Duolingo English Test — Overall Score 110 (CEFR B2)">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/duolingo-english-test.png" alt="Duolingo English Test Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Language</span>
+                        <h3 class="text-lg font-bold mb-1">Duolingo English Test</h3>
+                        <p class="text-gray-400 text-sm">Score 110 · CEFR B2 · Mar 2025</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 50ms;" data-cert="assets/certificates/jlpt-n4.png" data-title="JLPT N4 — Japanese-Language Proficiency Test">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/jlpt-n4.png" alt="JLPT N4 Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Language</span>
+                        <h3 class="text-lg font-bold mb-1">JLPT Level N4</h3>
+                        <p class="text-gray-400 text-sm">Japan Foundation · Jan 2026</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 50ms;" data-cert="assets/certificates/nat-test-n4.png" data-title="NAT-TEST Level 4Q (N4 equivalent)">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/nat-test-n4.png" alt="NAT-TEST N4 Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Language</span>
+                        <h3 class="text-lg font-bold mb-1">NAT-TEST 4Q (N4)</h3>
+                        <p class="text-gray-400 text-sm">Dhaka, Bangladesh · Feb 2025</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 100ms;" data-cert="assets/certificates/jlpt-n5.png" data-title="JLPT N5 — Japanese-Language Proficiency Test">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/jlpt-n5.png" alt="JLPT N5 Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Language</span>
+                        <h3 class="text-lg font-bold mb-1">JLPT Level N5</h3>
+                        <p class="text-gray-400 text-sm">Japan Foundation · Jan 2025</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 150ms;" data-cert="assets/certificates/nat-test-n5.png" data-title="NAT-TEST Level 5Q (N5 equivalent)">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/nat-test-n5.png" alt="NAT-TEST N5 Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Language</span>
+                        <h3 class="text-lg font-bold mb-1">NAT-TEST 5Q (N5)</h3>
+                        <p class="text-gray-400 text-sm">Dhaka, Bangladesh · Dec 2024</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 200ms;" data-cert="assets/certificates/linkedin-ai-machine-learning.png" data-title="Artificial Intelligence Foundations: Machine Learning">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/linkedin-ai-machine-learning.png" alt="LinkedIn Learning AI Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Tech</span>
+                        <h3 class="text-lg font-bold mb-1">AI Foundations: Machine Learning</h3>
+                        <p class="text-gray-400 text-sm">LinkedIn Learning · Jan 2025</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 250ms;" data-cert="assets/certificates/unicef-data-management.png" data-title="UNICEF — Data Management & Analysis for Cluster Information Management">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/unicef-data-management.png" alt="UNICEF Data Management Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Professional</span>
+                        <h3 class="text-lg font-bold mb-1">Data Management & Analysis</h3>
+                        <p class="text-gray-400 text-sm">UNICEF Agora · Mar 2025</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 300ms;" data-cert="assets/certificates/unicef-effective-communications.png" data-title="UNICEF — Effective Communications Initiative">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/unicef-effective-communications.png" alt="UNICEF Effective Communications Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Professional</span>
+                        <h3 class="text-lg font-bold mb-1">Effective Communications Initiative</h3>
+                        <p class="text-gray-400 text-sm">UNICEF Agora · Mar 2025</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 350ms;" data-cert="assets/certificates/diu-marathon-7.5km.png" data-title="25th DIU Founding Anniversary Run 2026 — 7.5 KM">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/diu-marathon-7.5km.png" alt="DIU Marathon Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Event</span>
+                        <h3 class="text-lg font-bold mb-1">DIU Silver Jubilee Run 7.5 KM</h3>
+                        <p class="text-gray-400 text-sm">Daffodil International University · Jan 2026</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 400ms;" data-cert="assets/certificates/daffodil-family-day-2026.png" data-title="Daffodil Family Day 2026 — Volunteer Appreciation">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/daffodil-family-day-2026.png" alt="Daffodil Family Day Volunteer Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Volunteer</span>
+                        <h3 class="text-lg font-bold mb-1">Daffodil Family Day 2026</h3>
+                        <p class="text-gray-400 text-sm">Daffodil Group · Volunteer</p>
+                    </div>
+                </article>
+
+                <article class="certificate-card bg-card rounded-2xl border border-gray-800 overflow-hidden reveal group cursor-pointer" style="transition-delay: 450ms;" data-cert="assets/certificates/bd-clean-volunteer.png" data-title="BD CLEAN — Certificate of Achievement">
+                    <div class="relative h-44 overflow-hidden bg-white">
+                        <img src="assets/certificates/bd-clean-volunteer.png" alt="BD CLEAN Volunteer Certificate" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <div class="absolute inset-0 bg-[#0b1121]/0 group-hover:bg-[#0b1121]/40 transition-colors flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-semibold bg-red-accent px-3 py-1 rounded-full"><i class="fa-solid fa-expand mr-1"></i> View</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <span class="text-xs font-bold px-2 py-1 bg-red-accent/10 text-red-accent rounded mb-2 inline-block">Volunteer</span>
+                        <h3 class="text-lg font-bold mb-1">BD CLEAN Volunteer</h3>
+                        <p class="text-gray-400 text-sm">COVID-19 relief & community work</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certificate lightbox -->
+    <div id="cert-lightbox" class="fixed inset-0 z-[70] flex items-center justify-center p-4 md:p-8" aria-hidden="true">
+        <button type="button" id="cert-lightbox-backdrop" class="absolute inset-0 bg-[#0b1121]/90 backdrop-blur-sm" aria-label="Close certificate view"></button>
+        <div class="relative z-10 w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between mb-3 gap-4">
+                <h3 id="cert-lightbox-title" class="text-lg font-bold text-white truncate"></h3>
+                <button type="button" id="cert-lightbox-close" class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 hover:border-red-accent hover:text-red-accent transition-colors" aria-label="Close">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="bg-white rounded-xl overflow-auto max-h-[calc(90vh-4rem)] shadow-2xl">
+                <img id="cert-lightbox-img" src="" alt="" class="w-full h-auto">
+            </div>
+            <div id="cert-lightbox-actions" class="hidden mt-4 flex justify-center">
+                <a href="assets/resume.png" download="Md_Yaqub_Bhuiyan_Resume.png" class="px-6 py-2.5 bg-red-accent hover:bg-rose-700 text-white rounded-lg font-semibold text-sm transition-colors shadow-lg shadow-rose-600/30">
+                    <i class="fa-solid fa-download mr-2"></i> Download CV
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Contact & Reference Section -->
     <section id="contact" class="py-20 px-6 bg-[#0e1526] relative overflow-hidden">
         <!-- Decoration -->
@@ -392,13 +675,13 @@
                         </div>
                     </div>
                     
-                    <div class="flex items-center gap-4 bg-card p-4 rounded-xl border border-gray-800">
+                    <div id="contact-email" class="flex items-center gap-4 bg-card p-4 rounded-xl border border-gray-800 scroll-mt-28 transition-colors duration-500">
                         <div class="w-12 h-12 bg-red-accent/10 text-red-accent rounded-lg flex items-center justify-center text-xl">
                             <i class="fa-solid fa-envelope"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 font-medium">Email Me</p>
-                            <p class="font-bold text-lg">253-15-248@diu.edu.bd</p>
+                            <a href="mailto:253-15-248@diu.edu.bd" class="font-bold text-lg hover:text-red-accent transition-colors">253-15-248@diu.edu.bd</a>
                         </div>
                     </div>
 
@@ -468,8 +751,90 @@
             };
 
             window.addEventListener('scroll', revealOnScroll);
-            // Trigger once on load
             revealOnScroll();
+
+            const menu = document.getElementById('mobile-menu');
+            const menuToggle = document.getElementById('menu-toggle');
+            const menuClose = document.getElementById('menu-close');
+            const menuBackdrop = document.getElementById('menu-backdrop');
+            const menuLinks = document.querySelectorAll('.menu-link');
+
+            const openMenu = () => {
+                menu.classList.add('open');
+                menuToggle.classList.add('open');
+                menuToggle.setAttribute('aria-expanded', 'true');
+                menu.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('menu-open');
+            };
+
+            const closeMenu = () => {
+                menu.classList.remove('open');
+                menuToggle.classList.remove('open');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                menu.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('menu-open');
+            };
+
+            menuToggle.addEventListener('click', () => {
+                menu.classList.contains('open') ? closeMenu() : openMenu();
+            });
+            menuClose.addEventListener('click', closeMenu);
+            menuBackdrop.addEventListener('click', closeMenu);
+            menuLinks.forEach((link) => link.addEventListener('click', closeMenu));
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeMenu();
+                    closeCertLightbox();
+                }
+            });
+
+            const certLightbox = document.getElementById('cert-lightbox');
+            const certLightboxImg = document.getElementById('cert-lightbox-img');
+            const certLightboxTitle = document.getElementById('cert-lightbox-title');
+            const certLightboxClose = document.getElementById('cert-lightbox-close');
+            const certLightboxBackdrop = document.getElementById('cert-lightbox-backdrop');
+            const certLightboxActions = document.getElementById('cert-lightbox-actions');
+            const certificateCards = document.querySelectorAll('.certificate-card');
+            const menuResumeOpen = document.getElementById('menu-resume-open');
+
+            const openCertLightbox = (src, title, showDownload = false) => {
+                certLightboxImg.src = src;
+                certLightboxImg.alt = title;
+                certLightboxTitle.textContent = title;
+                certLightbox.classList.add('open');
+                certLightbox.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('menu-open');
+                if (certLightboxActions) {
+                    certLightboxActions.classList.toggle('hidden', !showDownload);
+                    certLightboxActions.classList.toggle('flex', showDownload);
+                }
+            };
+
+            const closeCertLightbox = () => {
+                certLightbox.classList.remove('open');
+                certLightbox.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('menu-open');
+                certLightboxImg.src = '';
+                if (certLightboxActions) {
+                    certLightboxActions.classList.add('hidden');
+                    certLightboxActions.classList.remove('flex');
+                }
+            };
+
+            certificateCards.forEach((card) => {
+                card.addEventListener('click', () => {
+                    openCertLightbox(card.dataset.cert, card.dataset.title);
+                });
+            });
+            certLightboxClose.addEventListener('click', closeCertLightbox);
+            certLightboxBackdrop.addEventListener('click', closeCertLightbox);
+
+            if (menuResumeOpen) {
+                menuResumeOpen.addEventListener('click', () => {
+                    closeMenu();
+                    openCertLightbox('assets/resume.png', 'Md Yaqub Bhuiyan — Resume', true);
+                });
+            }
         });
     </script>
 </body>
